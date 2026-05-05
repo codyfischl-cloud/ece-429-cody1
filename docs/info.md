@@ -9,11 +9,11 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-Explain how your project works
+The design takes two 32-bit inputs and produces a 64-bit product.
 
 ## How to test
 
-Explain how to use your project
+The design was verified using cocotb testbenches with multiple input values.
 
 ## External hardware
 
