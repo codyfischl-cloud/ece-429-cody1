@@ -1,6 +1,6 @@
 # Tiny Tapeout project information
 project:
-  title:        "Hw7"      # Project title
+  title:        "PM32 Multiplier"      # Project title
   author:       "Cody Fischl"      # Your name
   discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
   description:  "32-bit multiplier using shift-add algorithm"      # One line description of what your project does
