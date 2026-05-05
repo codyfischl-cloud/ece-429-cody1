@@ -1,11 +1,5 @@
 # PM32 Multiplier
 
-This project implements a 32-bit multiplier using a shift-and-add algorithm.
+32-bit shift-add multiplier implemented in Verilog.
 
-## Features
-- Multiplies two 32-bit values
-- Produces a 64-bit result
-- Verified using cocotb testbench
-
-## Author
-Student
+Tested using cocotb.
