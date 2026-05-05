@@ -1,4 +1,4 @@
-# Tiny Tapeout project information
+=# Tiny Tapeout project information
 project:
   title:        "PM32 Multiplier"      # Project title
   author:       "Cody Fischl"      # Your name
@@ -55,7 +55,7 @@ pinout:
 
 # Do not change!
 yaml_version: 6
-cd docs
+author:Cody Fischl
 nano info.md
 cd ..
 git add info.yaml docs/info.md
