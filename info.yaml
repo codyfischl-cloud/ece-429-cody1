@@ -1,4 +1,4 @@
-=# Tiny Tapeout project information
+# Tiny Tapeout project information
 project:
   title:        "PM32 Multiplier"      # Project title
   author:       "Cody Fischl"      # Your name
@@ -11,54 +11,48 @@ project:
   tiles: "1x1"          # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
 
   # Your top module name must start with "tt_um_". Make it unique by including your github username:
-  top_module:  "pm32"
+  top_module:  "tt_um_codyfischl-cloud"
 
   # List your project's source files here.
   # Source files must be in ./src and you must list each source file separately, one per line.
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
-    - "scr/pm32.v"
-    - "scr/spm.v"
+    - "project.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
 pinout:
   # Inputs
-  ui[0]: "mc[0]"
-  ui[1]: "mc[1]"
-  ui[2]: "mc[2]"
-  ui[3]: "mc[3]"
-  ui[4]: "mc[4]"
-  ui[5]: "mc[5]"
-  ui[6]: "mc[6]"
-  ui[7]: "mc[7]"
+  ui[0]: "A0"
+  ui[1]: "A1"
+  ui[2]: "A2"
+  ui[3]: "A3"
+  ui[4]: "A4"
+  ui[5]: "A5"
+  ui[6]: "A6"
+  ui[7]: "A7"
 
   # Outputs
-  uo[0]: "p[0]"
-  uo[1]: "p[1]"
-  uo[2]: "p[2]"
-  uo[3]: "p[3]"
-  uo[4]: "p[4]"
-  uo[5]: "p[5]"
-  uo[6]: "p[6]"
-  uo[7]: "p[7]"
+  uo[0]: "Product bit 0"
+  uo[1]: "Product bit 1"
+  uo[2]: "Product bit 2"
+  uo[3]: "Product bit 3"
+  uo[4]: "Product bit 4"
+  uo[5]: "Product bit 5"
+  uo[6]: "Product bit 6"
+  uo[7]: "Product bit 7"
 
   # Bidirectional pins
-  uio[0]: ""
-  uio[1]: ""
-  uio[2]: ""
-  uio[3]: ""
-  uio[4]: ""
-  uio[5]: ""
-  uio[6]: ""
-  uio[7]: ""
+  uio[0]: "B0 / Product bit 8"
+  uio[1]: "B1 / Product bit 9"
+  uio[2]: "B2 / Product bit 10"
+  uio[3]: "B3 / Product bit 11"
+  uio[4]: "B4 / Product bit 12"
+  uio[5]: "B5 / Product bit 13"
+  uio[6]: "B6 / Product bit 14"
+  uio[7]: "B7 / Product bit 15"
 
 # Do not change!
 yaml_version: 6
-author:Cody Fischl
-nano info.md
-cd ..
-git add info.yaml docs/info.md
-git commit -m "Fix docs and info.yaml"
-git push
+
 
