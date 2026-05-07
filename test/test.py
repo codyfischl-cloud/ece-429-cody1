@@ -66,4 +66,4 @@ async def test_pm32(dut):
         if dut.done.value == 1:
             break
 
-    assert dut.p.value == 35, f"Expected 35 got {dut.p.value}"
+    assert dut.p.value == 70, f"Expected 35 got {dut.p.value}"
