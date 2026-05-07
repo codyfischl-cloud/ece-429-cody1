@@ -1,44 +1,90 @@
+`timescale 1ns/1ps
 `default_nettype none
 
-module tt_um_codyfischl (
-    input  wire [7:0] ui_in,
-    output wire [7:0] uo_out,
-    input  wire [7:0] uio_in,
-    output wire [7:0] uio_out,
-    output wire [7:0] uio_oe,
-    input  wire       ena,
-    input  wire       clk,
-    input  wire       rst_n
+module pm32 (
+    input wire         clk,
+    input wire         rst,
+    input wire         start,
+    input wire [31:0]  mc,
+    input wire [31:0]  mp,
+    output reg [63:0]  p,
+    output wire        done
 );
 
-    // wiring
-    wire [31:0] mc = {24'b0, ui_in};
-    wire [31:0] mp = {24'b0, uio_in};
+    reg [31:0] A, B;
+    reg [63:0] acc;
+    reg [5:0]  cnt;
 
-    wire [63:0] p;
-    wire done;
-    reg start;
+    localparam IDLE = 2'b00,
+               RUN  = 2'b01,
+               DONE = 2'b10;
 
-    // simple start pulse (always running for test)
-    always @(posedge clk or negedge rst_n) begin
-        if (!rst_n)
-            start <= 0;
+    reg [1:0] state, nstate;
+
+    // ---------------- STATE ----------------
+    always @(posedge clk or posedge rst) begin
+        if (rst)
+            state <= IDLE;
         else
-            start <= 1;
+            state <= nstate;
     end
 
-    pm32 uut (
-        .clk(clk),
-        .rst(~rst_n),
-        .start(start),
-        .mc(mc),
-        .mp(mp),
-        .p(p),
-        .done(done)
-    );
+    always @(*) begin
+        nstate = state;
 
-    assign uo_out  = p[7:0];   // low bits of product
-    assign uio_out = 0;
-    assign uio_oe  = 0;
+        case (state)
+            IDLE: if (start) nstate = RUN;
+
+            RUN:  if (cnt == 32) nstate = DONE;
+
+            DONE: if (start) nstate = RUN;
+
+            default: nstate = IDLE;
+        endcase
+    end
+
+    // ---------------- COUNTER ----------------
+    always @(posedge clk or posedge rst) begin
+        if (rst)
+            cnt <= 0;
+        else if (state == RUN)
+            cnt <= cnt + 1;
+        else if (state == IDLE)
+            cnt <= 0;
+        else if (state == DONE)
+            cnt <= 0;
+    end
+
+    // ---------------- SHIFT MULTIPLY ----------------
+    always @(posedge clk or posedge rst) begin
+        if (rst) begin
+            A <= 0;
+            B <= 0;
+            acc <= 0;
+        end
+        else if (start && state == IDLE) begin
+            A <= mc;
+            B <= mp;
+            acc <= 0;
+        end
+        else if (state == RUN) begin
+            if (B[0])
+                acc <= acc + (A << cnt);
+
+            B <= B >> 1;
+        end
+    end
+
+    // ---------------- OUTPUT ----------------
+    always @(posedge clk or posedge rst) begin
+        if (rst)
+            p <= 0;
+        else if (state == DONE)
+            p <= acc;
+    end
+
+    assign done = (state == DONE);
 
 endmodule
+
+`default_nettype wire
