@@ -1,28 +1,80 @@
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import RisingEdge
+from cocotb.triggers import RisingEdge, ClockCycles
 
-@cocotb.test()
-async def test_pm32(dut):
 
-    # Clock
-    cocotb.start_soon(Clock(dut.clk, 10, units="us").start())
+def to_unsigned(value, bits):
+    return value & ((1 << bits) - 1)
 
-    # Reset (active low)
-    dut.rst_n.value = 0
+
+async def reset_dut(dut):
+    dut.rst.value = 1
+    dut.start.value = 0
+    dut.mc.value = 0
+    dut.mp.value = 0
+
+    await ClockCycles(dut.clk, 3)
+
+    dut.rst.value = 0
     await RisingEdge(dut.clk)
+
+
+async def run_pm32_test(dut, mc_value, mp_value):
+    await reset_dut(dut)
+
+    dut.mc.value = to_unsigned(mc_value, 32)
+    dut.mp.value = to_unsigned(mp_value, 32)
+
+    dut.start.value = 1
     await RisingEdge(dut.clk)
-    dut.rst_n.value = 1
+    dut.start.value = 0
 
-    # Apply inputs (mapped to ui_in/uio_in)
-    dut.ui_in.value = 20
-    dut.uio_in.value = 30
+    done_seen = False
 
-    # wait for computation
-    for _ in range(20):
+    for _ in range(100):
         await RisingEdge(dut.clk)
 
-    # Check output (only visible result)
-    result = int(dut.uo_out.value)
+        if int(dut.done.value) == 1:
+            done_seen = True
+            break
 
-    assert result != 0, f"Got {result}, expected non-zero output"
+    assert done_seen, "PM32 did not finish. done never became 1."
+
+    expected = to_unsigned(mc_value * mp_value, 64)
+    actual = int(dut.p.value)
+
+    assert actual == expected, (
+        f"PM32 failed for mc={mc_value}, mp={mp_value}. "
+        f"Expected {expected:#018x}, got {actual:#018x}"
+    )
+
+
+@cocotb.test()
+async def test_pm32_smoke(dut):
+    dut._log.info("Starting PM32 smoke test")
+
+    clock = Clock(dut.clk, 10, units="us")
+    cocotb.start_soon(clock.start())
+
+    await run_pm32_test(dut, 20, 30)
+
+
+@cocotb.test()
+async def test_pm32_multiple_values(dut):
+    dut._log.info("Starting PM32 multiple-value test")
+
+    clock = Clock(dut.clk, 10, units="us")
+    cocotb.start_soon(clock.start())
+
+    test_cases = [
+        (0, 0),
+        (1, 1),
+        (5, 7),
+        (20, 30),
+        (1234, 5678),
+        (100, 200),
+        (255, 255),
+        (1024, 4096),
+    ]
+    for mc_value, mp_value in test_cases:
+        await run_pm32_test(dut, mc_value, mp_value)
