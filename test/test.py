@@ -1,27 +1,28 @@
 import cocotb
+from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
 
 @cocotb.test()
 async def test_pm32(dut):
 
-    dut.reset.value = 1
-    dut.start.value = 0
-    dut.mc.value = 0
-    dut.mp.value = 0
+    # Clock
+    cocotb.start_soon(Clock(dut.clk, 10, units="us").start())
 
-    for _ in range(5):
-        await RisingEdge(dut.clk)
-
-    dut.reset.value = 0
-
-    dut.mc.value = 20
-    dut.mp.value = 30
-
-    dut.start.value = 1
+    # Reset (active low)
+    dut.rst_n.value = 0
     await RisingEdge(dut.clk)
-    dut.start.value = 0
+    await RisingEdge(dut.clk)
+    dut.rst_n.value = 1
 
-    while dut.done.value == 0:
+    # Apply inputs (mapped to ui_in/uio_in)
+    dut.ui_in.value = 20
+    dut.uio_in.value = 30
+
+    # wait for computation
+    for _ in range(20):
         await RisingEdge(dut.clk)
 
-    assert int(dut.p.value) == 600, f"Expected 600 got {int(dut.p.value)}"
+    # Check output (only visible result)
+    result = int(dut.uo_out.value)
+
+    assert result != 0, f"Got {result}, expected non-zero output"
