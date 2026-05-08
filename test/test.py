@@ -40,6 +40,9 @@ async def run_pm32_test(dut, mc_value, mp_value):
 
     assert done_seen, "PM32 did not finish. done never became 1."
 
+    # wait one extra clock so output p updates
+    await RisingEdge(dut.clk)
+
     expected = to_unsigned(mc_value * mp_value, 64)
     actual = int(dut.p.value)
 
