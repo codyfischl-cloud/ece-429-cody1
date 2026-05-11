@@ -11,14 +11,20 @@ module tt_um_codyfischl (
     input  wire       rst_n
 );
 
-    wire [15:0] product;
+    reg [31:0] counter;
 
-    assign product = ui_in * uio_in;
+    always @(posedge clk or negedge rst_n) begin
+        if (!rst_n)
+            counter <= 0;
+        else
+            counter <= counter + 1;
+    end
 
-    assign uo_out  = product[7:0];
-    assign uio_out = product[15:8];
-    assign uio_oe  = 8'b11111111;
+    assign uo_out = counter[7:0];
 
-    wire _unused = &{ena, clk, rst_n, 1'b0};
+    assign uio_out = 8'b00000000;
+    assign uio_oe  = 8'b00000000;
+
+    wire _unused = &{ena, ui_in, uio_in, 1'b0};
 
 endmodule
